@@ -1,7 +1,7 @@
 const features = [
   {
-    title: "Deposit Collateral",
-    desc: "Lock your ETH, WBTC, stETH, or any supported asset as collateral. Your assets remain on-chain and fully transparent at all times.",
+    title: "Connect & Deposit",
+    desc: "Connect MetaMask, mint mock WETH from the faucet, then deposit that mock WETH as collateral into the demo protocol.",
     tag: "Step 01",
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -9,11 +9,11 @@ const features = [
         <path d="M14 9V19M10 13H18" stroke="#00e896" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
-    highlight: "Multi-collateral",
+    highlight: "Mock WETH collateral",
   },
   {
-    title: "Borrow USDC Instantly",
-    desc: "Access up to 80% of your collateral value as USDC. Funds arrive in your wallet within seconds — no credit checks, no paperwork.",
+    title: "Borrow USDC",
+    desc: "Borrow mock USDC against your deposited mock WETH and watch the account state update live onchain on Sepolia.",
     tag: "Step 02",
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -21,11 +21,11 @@ const features = [
         <text x="14" y="19" textAnchor="middle" fontSize="12" fontWeight="700" fill="#00e896">$</text>
       </svg>
     ),
-    highlight: "Up to 80% LTV",
+    highlight: "75% LTV demo",
   },
   {
-    title: "Real-time Health Factor",
-    desc: "Monitor your position health with live updates. Get alerts before liquidation thresholds are reached so you always stay protected.",
+    title: "Monitor Position",
+    desc: "Watch your health factor in real-time on the dashboard. Get timely alerts as you approach liquidation thresholds. Always stay informed and in control.",
     tag: "Step 03",
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -35,8 +35,8 @@ const features = [
     highlight: "Live monitoring",
   },
   {
-    title: "Flexible Repayment",
-    desc: "Repay your loan anytime — partially or in full — with no early repayment penalties. Interest accrues per block for maximum precision.",
+    title: "Repay & Withdraw",
+    desc: "Repay the mock USDC debt anytime and withdraw your mock collateral once the position stays healthy.",
     tag: "Step 04",
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -103,10 +103,11 @@ export function Features() {
               marginBottom: 16,
             }}
           >
-            Borrow in four simple steps
+            Test the lending flow in four simple steps
           </h2>
           <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 16, maxWidth: 500, margin: "0 auto", lineHeight: 1.7 }}>
-            VerdantFi makes DeFi lending straightforward. No complex interfaces, just clean, powerful tools for managing your crypto-backed loans.
+            VaultLend demonstrates the complete lending lifecycle on Sepolia using faucet-minted
+            mock assets instead of real market capital.
           </p>
         </div>
 

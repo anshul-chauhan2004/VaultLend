@@ -1,4 +1,99 @@
-@import 'tailwindcss' source(none);
-@source '../**/*.{js,ts,jsx,tsx}';
+.max-w-7xl {
+  max-width: 80rem;
+}
 
-@import 'tw-animate-css';
+.max-w-6xl {
+  max-width: 72rem;
+}
+
+.max-w-2xl {
+  max-width: 42rem;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.pt-16 {
+  padding-top: 4rem;
+}
+
+.pb-12 {
+  padding-bottom: 3rem;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-12 {
+  gap: 3rem;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.top-0 {
+  top: 0;
+}
+
+.left-0 {
+  left: 0;
+}
+
+.right-0 {
+  right: 0;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.w-8 {
+  width: 2rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}

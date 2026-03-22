@@ -1,0 +1,26 @@
+{
+  "chainId": 11155111,
+  "networkName": "Sepolia",
+  "deployer": "0x6D831ebe67443eb5e662017cc79fE69b9BbFCD4e",
+  "contracts": {
+    "lendingPool": "0x5490913F5085175a20B24EcfB9Cbb5cBB944513D",
+    "weth": "0xBbDd5419E7cAaf62ac856DAABFf67B48a8909859",
+    "usdc": "0x4bD71a8E675Af9DaB37578105899899B11CAB2D6",
+    "oracle": "0x99b72270c78d839EC303E4d6555aCD7Bfbd2f468"
+  },
+  "tokens": {
+    "faucetWethAmount": "25.0",
+    "faucetUsdcAmount": "250000"
+  },
+  "prices": {
+    "wethUsd": "3200",
+    "usdcUsd": "1"
+  },
+  "timestamp": "2026-03-22T15:55:38.986Z",
+  "explorer": {
+    "lendingPool": "https://sepolia.etherscan.io/address/0x5490913F5085175a20B24EcfB9Cbb5cBB944513D",
+    "weth": "https://sepolia.etherscan.io/address/0xBbDd5419E7cAaf62ac856DAABFf67B48a8909859",
+    "usdc": "https://sepolia.etherscan.io/address/0x4bD71a8E675Af9DaB37578105899899B11CAB2D6",
+    "oracle": "https://sepolia.etherscan.io/address/0x99b72270c78d839EC303E4d6555aCD7Bfbd2f468"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-live
+artifacts
+cache
+.tsbuild
+*.tsbuildinfo
+.codex-build.log
+.codex-hardhat.log

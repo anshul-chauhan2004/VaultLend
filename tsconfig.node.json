@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "types": ["node", "mocha", "chai"],
+    "outDir": ".tsbuild/node",
+    "tsBuildInfoFile": ".tsbuild/tsconfig.node.tsbuildinfo"
+  },
+  "include": [
+    "hardhat.d.ts",
+    "vite.config.mts",
+    "scripts/**/*.ts",
+    "test/**/*.ts"
+  ]
+}

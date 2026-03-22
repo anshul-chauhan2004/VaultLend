@@ -38,12 +38,13 @@ export function Footer() {
                 </svg>
               </div>
               <span style={{ color: "#ffffff", fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>
-                Verdant<span style={{ color: "#00e896" }}>Fi</span>
+                Vault<span style={{ color: "#00e896" }}>Lend</span>
               </span>
             </div>
 
             <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 14, lineHeight: 1.75, maxWidth: 260, marginBottom: 28 }}>
-              A decentralized, non-custodial lending protocol enabling crypto-backed borrowing without selling your assets.
+              Sepolia lending demo for testing collateral, borrowing, and repayment flows with
+              faucet-minted mock assets through MetaMask.
             </p>
 
             {/* Social Icons */}
@@ -139,7 +140,7 @@ export function Footer() {
           }}
         >
           <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 13 }}>
-            © 2026 VerdantFi Protocol. All rights reserved.
+            © 2026 VaultLend Protocol. All rights reserved.
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <div
@@ -164,10 +165,10 @@ export function Footer() {
                   animation: "pulse 2s ease-in-out infinite",
                 }}
               />
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>All systems operational</span>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>Sepolia demo online</span>
             </div>
             <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 13 }}>
-              Built on Ethereum
+              Built on Ethereum Sepolia
             </p>
           </div>
         </div>

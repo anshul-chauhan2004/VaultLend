@@ -1,4 +1,15 @@
+import { useNavigate } from "react-router-dom";
+
 export function CTA() {
+  const navigate = useNavigate();
+  const handleViewMarket = () => {
+    const section = document.getElementById("markets");
+    if (!section) return;
+
+    const top = section.getBoundingClientRect().top + window.scrollY - 96;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
   return (
     <section
       style={{
@@ -73,8 +84,8 @@ export function CTA() {
                 lineHeight: 1.15,
                 marginBottom: 16,
               }}
-            >
-              Ready to unlock liquidity{" "}
+              >
+              Run the full{" "}
               <span
                 style={{
                   background: "linear-gradient(90deg, #00e896, #00c278)",
@@ -82,17 +93,19 @@ export function CTA() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                from your crypto?
+                Sepolia demo flow
               </span>
             </h2>
             <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, lineHeight: 1.7 }}>
-              Join thousands of DeFi users who borrow against their assets without giving up upside. 
-              Connect your wallet and start in under 60 seconds.
+              VaultLend is fully onchain, but this version is a Sepolia demonstration that uses
+              faucet-minted mock assets. It is designed to show approvals, collateral deposits,
+              borrowing, repaying, and withdrawals without requiring real funds.
             </p>
           </div>
 
           <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 16, minWidth: 220 }}>
             <button
+              onClick={() => navigate("/app")}
               style={{
                 background: "linear-gradient(135deg, #00e896, #00c278)",
                 color: "#030f08",
@@ -118,6 +131,7 @@ export function CTA() {
               Launch App →
             </button>
             <button
+              onClick={handleViewMarket}
               style={{
                 background: "transparent",
                 color: "rgba(255,255,255,0.6)",
@@ -139,11 +153,11 @@ export function CTA() {
                 (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
               }}
             >
-              Read Documentation
+              View Market
             </button>
 
             <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, textAlign: "center" }}>
-              No KYC required • Non-custodial
+              Sepolia demo • Mock assets only
             </p>
           </div>
         </div>

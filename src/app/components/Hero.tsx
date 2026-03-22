@@ -1,6 +1,71 @@
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { IS_DEPLOYMENT_CONFIGURED } from "@/config/deployment";
+import { MARKET_TOKENS } from "@/config/tokens";
+import { usePoolData } from "@/hooks/useProtocol";
+import {
+  formatCompactUsdValue,
+  formatPercent,
+} from "../lib/protocolDisplay";
 import { HeroVisual } from "./HeroVisual";
 
+const RISK_PARAMS = [
+  { label: "LTV", value: "75%" },
+  { label: "Liquidation Threshold", value: "80%" },
+  { label: "Close Factor", value: "50%" },
+  { label: "Liquidation Bonus", value: "8%" },
+] as const;
+
 export function Hero() {
+  const navigate = useNavigate();
+  const { data: poolData } = usePoolData();
+
+  const heroMetrics = useMemo(
+    () => [
+      {
+        label: "Total Liquidity",
+        value: IS_DEPLOYMENT_CONFIGURED
+          ? formatCompactUsdValue(poolData.totalDeposits, MARKET_TOKENS.borrow.decimals)
+          : "Awaiting deploy",
+      },
+      {
+        label: "Total Borrows",
+        value: IS_DEPLOYMENT_CONFIGURED
+          ? formatCompactUsdValue(poolData.totalBorrows, MARKET_TOKENS.borrow.decimals)
+          : "Awaiting deploy",
+      },
+      {
+        label: "Utilization",
+        value: IS_DEPLOYMENT_CONFIGURED ? formatPercent(poolData.utilization, 1) : "--",
+      },
+      {
+        label: "Borrow APR",
+        value: IS_DEPLOYMENT_CONFIGURED ? formatPercent(poolData.borrowAPY, 2) : "--",
+      },
+    ],
+    [poolData],
+  );
+
+  const scrollToMarkets = () => {
+    const section = document.getElementById("markets");
+    if (section) {
+      const navOffset = 96;
+      const top = section.getBoundingClientRect().top + window.scrollY - navOffset;
+      window.scrollTo({ top, behavior: "smooth" });
+      return;
+    }
+
+    navigate("/");
+    window.setTimeout(() => {
+      const fallbackSection = document.getElementById("markets");
+      if (!fallbackSection) return;
+
+      const navOffset = 96;
+      const top = fallbackSection.getBoundingClientRect().top + window.scrollY - navOffset;
+      window.scrollTo({ top, behavior: "smooth" });
+    }, 50);
+  };
+
   return (
     <section
       style={{
@@ -11,11 +76,11 @@ export function Hero() {
         overflow: "hidden",
       }}
     >
-      {/* Background grid */}
       <div
         style={{
           position: "absolute",
           inset: 0,
+          pointerEvents: "none",
           backgroundImage: `
             linear-gradient(rgba(0,232,150,0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(0,232,150,0.03) 1px, transparent 1px)
@@ -24,8 +89,6 @@ export function Hero() {
           maskImage: "radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%)",
         }}
       />
-
-      {/* Ambient glow top-left */}
       <div
         style={{
           position: "absolute",
@@ -39,8 +102,6 @@ export function Hero() {
           pointerEvents: "none",
         }}
       />
-
-      {/* Ambient glow right */}
       <div
         style={{
           position: "absolute",
@@ -55,10 +116,11 @@ export function Hero() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-8 pt-16 pb-12 flex items-center gap-12" style={{ minHeight: "calc(100vh - 80px)" }}>
-        {/* Left content */}
-        <div className="flex-1 max-w-xl">
-          {/* Badge */}
+      <div
+        className="max-w-7xl mx-auto px-8 pt-16 pb-12 flex items-center gap-12"
+        style={{ minHeight: "calc(100vh - 80px)" }}
+      >
+        <div className="flex-1 max-w-2xl">
           <div
             style={{
               display: "inline-flex",
@@ -81,49 +143,73 @@ export function Hero() {
                 display: "inline-block",
               }}
             />
-            <span style={{ color: "#00e896", fontSize: 12, fontWeight: 500, letterSpacing: "0.06em" }}>
-              DECENTRALIZED LENDING PROTOCOL
+            <span style={{ color: "#00e896", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em" }}>
+              LIVE LENDING EXPERIENCE
             </span>
           </div>
 
           <h1
             style={{
-              fontSize: "clamp(40px, 5vw, 64px)",
+              fontSize: "clamp(42px, 5vw, 66px)",
               fontWeight: 700,
-              lineHeight: 1.1,
+              lineHeight: 1.05,
               color: "#ffffff",
-              letterSpacing: "-0.03em",
+              letterSpacing: "-0.04em",
               marginBottom: 24,
+              maxWidth: 760,
             }}
           >
-            Borrow stablecoins{" "}
+            Open a collateral-backed position.
+            <br />
             <span
               style={{
-                background: "linear-gradient(90deg, #00e896, #00c278)",
+                background: "linear-gradient(90deg, #00e896, #8dffca)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
             >
-              without selling
-            </span>{" "}
-            your crypto
+              Borrow, lend, and manage it live.
+            </span>
           </h1>
 
           <p
             style={{
-              color: "rgba(255,255,255,0.55)",
+              color: "rgba(255,255,255,0.58)",
               fontSize: 17,
-              lineHeight: 1.7,
-              marginBottom: 40,
+              lineHeight: 1.75,
+              marginBottom: 32,
+              maxWidth: 640,
             }}
           >
-            Deposit ETH, WBTC, or other crypto assets as collateral and instantly borrow USDC at competitive rates. 
-            Monitor your health factor in real-time and stay in full control of your positions.
+            VaultLend gives you a live lending interface with wallet-connected collateral,
+            liquidity, borrowing, repayment, and position management. This demo environment uses
+            faucet-minted assets so you can explore the entire flow without putting real capital at risk.
           </p>
 
-          {/* CTA Buttons */}
-          <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+          {!IS_DEPLOYMENT_CONFIGURED && (
+            <div
+              style={{
+                marginBottom: 28,
+                maxWidth: 640,
+                padding: "16px 18px",
+                borderRadius: 16,
+                border: "1px solid rgba(255,165,0,0.25)",
+                background: "rgba(255,165,0,0.08)",
+              }}
+            >
+              <p style={{ color: "#ffcf87", fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
+                Live protocol numbers unlock after Sepolia deployment
+              </p>
+              <p style={{ color: "rgba(255,255,255,0.62)", fontSize: 13, lineHeight: 1.6 }}>
+                The landing page now reads the real pool state. Until the contracts are deployed,
+                the stat cards below intentionally avoid placeholder numbers.
+              </p>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 36 }}>
             <button
+              onClick={() => navigate("/app")}
               style={{
                 background: "linear-gradient(135deg, #00e896, #00c278)",
                 color: "#030f08",
@@ -134,20 +220,12 @@ export function Hero() {
                 border: "none",
                 cursor: "pointer",
                 boxShadow: "0 0 30px rgba(0,232,150,0.4), 0 4px 15px rgba(0,0,0,0.3)",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 40px rgba(0,232,150,0.55), 0 8px 20px rgba(0,0,0,0.4)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 30px rgba(0,232,150,0.4), 0 4px 15px rgba(0,0,0,0.3)";
               }}
             >
-              Launch App →
+              Launch App
             </button>
             <button
+              onClick={scrollToMarkets}
               style={{
                 background: "rgba(0,232,150,0.06)",
                 color: "#ffffff",
@@ -157,56 +235,67 @@ export function Hero() {
                 fontSize: 15,
                 border: "1px solid rgba(0,232,150,0.2)",
                 cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,232,150,0.12)";
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,232,150,0.4)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,232,150,0.06)";
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,232,150,0.2)";
               }}
             >
-              View Markets
+              View Market
             </button>
           </div>
 
-          {/* Trust indicators */}
           <div
             style={{
-              marginTop: 48,
-              display: "flex",
-              alignItems: "center",
-              gap: 20,
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+              gap: 14,
+              maxWidth: 760,
+              marginBottom: 30,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 1L10 5.5L15 6.3L11.5 9.7L12.4 14.7L8 12.3L3.6 14.7L4.5 9.7L1 6.3L6 5.5L8 1Z" fill="#00e896" opacity="0.8" />
-              </svg>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Audited by Trail of Bits</span>
-            </div>
-            <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.1)" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="6" width="12" height="9" rx="2" stroke="#00e896" strokeWidth="1.3" opacity="0.8" />
-                <path d="M5 6V4.5C5 2.57 6.57 1 8.5 1S12 2.57 12 4.5V6" stroke="#00e896" strokeWidth="1.3" opacity="0.8" />
-              </svg>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Non-custodial</span>
-            </div>
-            <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.1)" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="6" stroke="#00e896" strokeWidth="1.3" opacity="0.8" />
-                <path d="M5.5 8L7 9.5L10.5 6" stroke="#00e896" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              </svg>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>100% On-chain</span>
-            </div>
+            {heroMetrics.map((metric) => (
+              <div
+                key={metric.label}
+                style={{
+                  borderRadius: 18,
+                  padding: "18px 18px",
+                  background: "linear-gradient(135deg, rgba(0,30,18,0.82), rgba(0,20,12,0.94))",
+                  border: "1px solid rgba(0,232,150,0.1)",
+                }}
+              >
+                <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, marginBottom: 10 }}>
+                  {metric.label}
+                </p>
+                <p style={{ color: "#ffffff", fontSize: 22, fontWeight: 700 }}>{metric.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            {RISK_PARAMS.map((item) => (
+              <div
+                key={item.label}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 14px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
+                }}
+              >
+                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 12 }}>{item.label}</span>
+                <span style={{ color: "#00e896", fontSize: 13, fontWeight: 700 }}>{item.value}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Right visual */}
         <div className="flex-1 flex items-center justify-center" style={{ minHeight: 500 }}>
           <HeroVisual />
         </div>
