@@ -47872,7 +47872,6 @@ function ActionModals({
       case "borrow":
         return effectiveAvailableToBorrow < poolData.availableLiquidity ? effectiveAvailableToBorrow : poolData.availableLiquidity;
       case "repay":
-        if (accountData.debt < marketDustThreshold) return 0n;
         return accountData.debt < usdcBalance.balance ? accountData.debt : usdcBalance.balance;
       case "liquidate": {
         const closeFactorDebt = accountData.debt / 2n;
