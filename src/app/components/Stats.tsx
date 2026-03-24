@@ -1,7 +1,12 @@
 import { IS_DEPLOYMENT_CONFIGURED } from "@/config/deployment";
 import { MARKET_TOKENS } from "@/config/tokens";
 import { usePoolData } from "@/hooks/useProtocol";
-import { formatPercent, formatTokenUnits, formatUsdValue } from "../lib/protocolDisplay";
+import {
+  formatPercent,
+  formatTokenUnits,
+  formatUsdValue,
+  getEffectiveAvailableLiquidity,
+} from "../lib/protocolDisplay";
 
 function StatCard({
   label,
@@ -54,6 +59,13 @@ function StatCard({
 
 export function Stats() {
   const { data: poolData } = usePoolData();
+  const effectiveAvailableLiquidity = getEffectiveAvailableLiquidity(
+    poolData.totalDeposits,
+    poolData.totalBorrows,
+    poolData.availableLiquidity,
+    MARKET_TOKENS.borrow.decimals,
+    1,
+  );
 
   const stats = [
     {
@@ -66,7 +78,7 @@ export function Stats() {
     {
       label: "Available Liquidity",
       value: IS_DEPLOYMENT_CONFIGURED
-        ? formatUsdValue(poolData.availableLiquidity, MARKET_TOKENS.borrow.decimals)
+        ? formatUsdValue(effectiveAvailableLiquidity, MARKET_TOKENS.borrow.decimals)
         : "--",
       sub: "Ready to borrow immediately",
     },

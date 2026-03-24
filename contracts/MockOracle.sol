@@ -7,10 +7,12 @@ pragma solidity ^0.8.24;
  */
 contract MockOracle {
     mapping(address => uint256) public prices;
+    address public owner;
 
     event PriceUpdated(address indexed token, uint256 price);
 
     constructor() {
+        owner = msg.sender;
         // Default prices (in Wei, 18 decimals)
         // ETH: $3,200
         prices[0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2] = 3200e18; // WETH
@@ -22,6 +24,7 @@ contract MockOracle {
      * @dev Set price for a token (in Wei with 18 decimals)
      */
     function setPrice(address token, uint256 price) external {
+        require(msg.sender == owner, "Only owner");
         prices[token] = price;
         emit PriceUpdated(token, price);
     }

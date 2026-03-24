@@ -45,11 +45,15 @@ export function getTokenByAddress(address: string): TokenMetadata | undefined {
 export function formatTokenAmount(
   amount: bigint,
   decimals: number,
-  precision: number = 2
+  precision: number = 2,
+  minDisplay: number = 0,
 ): string {
+  const minDisplayUnits =
+    minDisplay > 0 ? BigInt(Math.floor(minDisplay * 10 ** decimals)) : 0n;
+  const normalizedAmount = amount < minDisplayUnits ? 0n : amount;
   const divisor = 10n ** BigInt(decimals);
-  const wholePart = amount / divisor;
-  const fractionalPart = amount % divisor;
+  const wholePart = normalizedAmount / divisor;
+  const fractionalPart = normalizedAmount % divisor;
 
   const fractional = (fractionalPart.toString().padStart(decimals, "0")).slice(0, precision);
 

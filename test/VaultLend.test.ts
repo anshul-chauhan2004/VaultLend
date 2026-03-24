@@ -68,6 +68,7 @@ describe("VaultLend", () => {
 
       const data = await vaultLend.getPoolData();
       expect(data[0]).to.equal(amount); // totalDeposits
+      expect(await vaultLend.liquidityBalance(owner.address)).to.equal(amount);
     });
 
     it("should allow users to withdraw USDC liquidity", async () => {
@@ -79,6 +80,7 @@ describe("VaultLend", () => {
 
       const data = await vaultLend.getPoolData();
       expect(data[0]).to.equal(deposit - withdraw); // totalDeposits
+      expect(await vaultLend.liquidityBalance(owner.address)).to.equal(deposit - withdraw);
     });
 
     it("should fail to withdraw more than available", async () => {
@@ -86,7 +88,36 @@ describe("VaultLend", () => {
       await vaultLend.deposit(deposit);
 
       const withdraw = ethers.parseUnits("15000", 6);
-      await expect(vaultLend.withdrawLiquidity(withdraw)).to.be.revertedWith("Insufficient liquidity");
+      await expect(vaultLend.withdrawLiquidity(withdraw)).to.be.revertedWith(
+        "Insufficient supplied balance"
+      );
+    });
+
+    it("should not allow users to withdraw liquidity they did not supply", async () => {
+      const deposit = ethers.parseUnits("10000", 6);
+      await vaultLend.deposit(deposit);
+
+      await expect(
+        vaultLend.connect(user1).withdrawLiquidity(ethers.parseUnits("1", 6))
+      ).to.be.revertedWith("Insufficient supplied balance");
+    });
+
+    it("should fail to withdraw supplied liquidity when the pool does not have enough available cash", async () => {
+      const deposit = ethers.parseUnits("10000", 6);
+      await vaultLend.deposit(deposit);
+
+      await vaultLend.connect(user1).depositCollateral(ethers.parseEther("10"));
+      await vaultLend.connect(user1).borrow(ethers.parseUnits("5000", 6));
+
+      await expect(vaultLend.withdrawLiquidity(deposit)).to.be.revertedWith("Insufficient liquidity");
+    });
+  });
+
+  describe("Oracle Access Control", () => {
+    it("should only allow the owner to update prices", async () => {
+      await expect(
+        oracle.connect(user1).setPrice(await weth.getAddress(), ethers.parseEther("4000"))
+      ).to.be.revertedWith("Only owner");
     });
   });
 
@@ -267,6 +298,26 @@ describe("VaultLend", () => {
       // Check debt decreased
       const newData = await vaultLend.getAccountData(user1.address);
       expect(newData.debt).to.be.lt(userData.debt);
+    });
+
+    it("should allow repaying remaining debt after a partial liquidation", async () => {
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await ethers.provider.send("evm_mine", []);
+      await vaultLend.accrueInterest();
+
+      await oracle.setPrice(await usdc.getAddress(), ethers.parseEther("1.5"));
+
+      await vaultLend.connect(user2).liquidate(
+        user1.address,
+        ethers.parseUnits("5000", 6),
+        user2.address
+      );
+
+      const remainingDebt = await vaultLend.getBorrowBalance(user1.address);
+      expect(remainingDebt).to.be.gt(0);
+
+      await expect(vaultLend.connect(user1).repay(remainingDebt)).to.not.be.reverted;
+      expect(await vaultLend.getBorrowBalance(user1.address)).to.equal(0);
     });
 
     it("should respect close factor (50%)", async () => {

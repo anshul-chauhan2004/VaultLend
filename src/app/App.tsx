@@ -14,12 +14,15 @@ import { wagmiConfig } from "@/config/wagmi";
 import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
 import { AppDashboard } from "./pages/AppDashboard";
+import { InfoPage } from "./pages/InfoPage";
 
 const queryClient = new QueryClient();
-const isPagesDeployment =
-  typeof window !== "undefined" &&
-  window.location.pathname.startsWith("/Premiumdefilandingpage");
-const Router = isPagesDeployment ? HashRouter : BrowserRouter;
+const pathname =
+  typeof window !== "undefined"
+    ? window.location.pathname.replace(/\/+$/, "") || "/"
+    : "/";
+const isSubpathStaticDeployment = !["/", "/app", "/dashboard"].includes(pathname);
+const Router = isSubpathStaticDeployment ? HashRouter : BrowserRouter;
 
 function ScrollToTop() {
   const location = useLocation();
@@ -44,6 +47,7 @@ export default function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/app" element={<AppDashboard />} />
                 <Route path="/dashboard" element={<AppDashboard />} />
+                <Route path="/pages/:slug" element={<InfoPage />} />
               </Routes>
             </div>
           </Router>

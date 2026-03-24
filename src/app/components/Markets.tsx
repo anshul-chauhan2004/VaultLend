@@ -8,6 +8,7 @@ import {
   formatRiskPercent,
   formatTokenUnits,
   formatUsdValue,
+  getEffectiveAvailableLiquidity,
 } from "../lib/protocolDisplay";
 
 const RISK_ITEMS = [
@@ -23,6 +24,13 @@ const RISK_ITEMS = [
 export function Markets() {
   const navigate = useNavigate();
   const { data: poolData } = usePoolData();
+  const effectiveAvailableLiquidity = getEffectiveAvailableLiquidity(
+    poolData.totalDeposits,
+    poolData.totalBorrows,
+    poolData.availableLiquidity,
+    MARKET_TOKENS.borrow.decimals,
+    1,
+  );
 
   return (
     <section
@@ -191,7 +199,7 @@ export function Markets() {
                 </p>
                 <p style={{ color: "#ff6b6b", fontSize: 24, fontWeight: 700 }}>
                   {IS_DEPLOYMENT_CONFIGURED
-                    ? formatUsdValue(poolData.totalBorrows, MARKET_TOKENS.borrow.decimals)
+                    ? formatUsdValue(poolData.totalBorrows, MARKET_TOKENS.borrow.decimals, 2, 1)
                     : "--"}
                 </p>
                 <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginTop: 8 }}>
@@ -204,7 +212,7 @@ export function Markets() {
                 </p>
                 <p style={{ color: "#ffffff", fontSize: 24, fontWeight: 700 }}>
                   {IS_DEPLOYMENT_CONFIGURED
-                    ? formatUsdValue(poolData.availableLiquidity, MARKET_TOKENS.borrow.decimals)
+                    ? formatUsdValue(effectiveAvailableLiquidity, MARKET_TOKENS.borrow.decimals)
                     : "--"}
                 </p>
                 <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginTop: 8 }}>

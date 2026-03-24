@@ -1,7 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import solc from "solc";
-import { ContractFactory, JsonRpcProvider, Wallet, formatEther, parseEther, parseUnits } from "ethers";
+import {
+  Contract,
+  ContractFactory,
+  JsonRpcProvider,
+  Wallet,
+  formatEther,
+  parseEther,
+  parseUnits,
+} from "ethers";
 
 const REQUIRED_ENV_VARS = ["SEPOLIA_RPC_URL", "PRIVATE_KEY"];
 const DEPLOYMENT_PLACEHOLDER = "0x1234567890123456789012345678901234567890";
@@ -58,6 +66,22 @@ export const IS_DEPLOYMENT_CONFIGURED =
 `;
 
   fs.writeFileSync(filePath, ts);
+}
+
+function readJsonIfExists(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function isConfiguredAddress(value) {
+  return (
+    typeof value === "string" &&
+    /^0x[a-fA-F0-9]{40}$/.test(value) &&
+    value.toLowerCase() !== DEPLOYMENT_PLACEHOLDER.toLowerCase()
+  );
 }
 
 function loadSources() {
@@ -145,13 +169,32 @@ async function main() {
   const mockOracleArtifact = getArtifact(compiledContracts, "contracts/MockOracle.sol", "MockOracle");
   const vaultLendArtifact = getArtifact(compiledContracts, "contracts/VaultLend.sol", "VaultLend");
 
-  const weth = await deploy("MockWETH", mockWethArtifact, wallet);
-  const usdc = await deploy("MockUSDC", mockUsdcArtifact, wallet);
+  const frontendDeploymentsDir = path.join(process.cwd(), "src/config/deployments");
+  const frontendDeploymentPath = path.join(frontendDeploymentsDir, "sepolia.json");
+  const frontendConfigPath = path.join(process.cwd(), "src/config/deployment.ts");
+  const previousDeployment = readJsonIfExists(frontendDeploymentPath);
+  const shouldReuseExistingTokens =
+    process.env.FORCE_REDEPLOY_TOKENS !== "true" &&
+    previousDeployment?.chainId === Number(network.chainId) &&
+    isConfiguredAddress(previousDeployment?.contracts?.weth) &&
+    isConfiguredAddress(previousDeployment?.contracts?.usdc);
+
+  const weth = shouldReuseExistingTokens
+    ? new Contract(previousDeployment.contracts.weth, mockWethArtifact.abi, wallet)
+    : await deploy("MockWETH", mockWethArtifact, wallet);
+  const usdc = shouldReuseExistingTokens
+    ? new Contract(previousDeployment.contracts.usdc, mockUsdcArtifact.abi, wallet)
+    : await deploy("MockUSDC", mockUsdcArtifact, wallet);
   const oracle = await deploy("MockOracle", mockOracleArtifact, wallet);
 
   const wethAddress = await weth.getAddress();
   const usdcAddress = await usdc.getAddress();
   const oracleAddress = await oracle.getAddress();
+
+  if (shouldReuseExistingTokens) {
+    console.log(`Reusing MockWETH at ${wethAddress}`);
+    console.log(`Reusing MockUSDC at ${usdcAddress}`);
+  }
 
   console.log("Setting oracle prices...");
   await (await oracle.setPrice(wethAddress, parseEther("3200"))).wait();
@@ -201,10 +244,6 @@ async function main() {
       oracle: `https://sepolia.etherscan.io/address/${oracleAddress}`,
     },
   };
-
-  const frontendConfigPath = path.join(process.cwd(), "src/config/deployment.ts");
-  const frontendDeploymentsDir = path.join(process.cwd(), "src/config/deployments");
-  const frontendDeploymentPath = path.join(frontendDeploymentsDir, "sepolia.json");
 
   ensureDir(frontendDeploymentsDir);
   writeJson(frontendDeploymentPath, deployment);

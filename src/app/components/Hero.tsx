@@ -31,7 +31,7 @@ export function Hero() {
       {
         label: "Total Borrows",
         value: IS_DEPLOYMENT_CONFIGURED
-          ? formatCompactUsdValue(poolData.totalBorrows, MARKET_TOKENS.borrow.decimals)
+          ? formatCompactUsdValue(poolData.totalBorrows, MARKET_TOKENS.borrow.decimals, 1, 1)
           : "Awaiting deploy",
       },
       {

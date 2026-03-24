@@ -1,9 +1,34 @@
+import { Link } from "react-router-dom";
+
 const footerLinks = {
-  Protocol: ["Markets", "Borrow", "Earn", "Liquidations", "Governance"],
-  Developers: ["Documentation", "GitHub", "Bug Bounty", "Audits", "Brand Kit"],
-  Community: ["Discord", "Twitter / X", "Telegram", "Blog", "Newsletter"],
-  Legal: ["Terms of Service", "Privacy Policy", "Risk Disclosure", "Cookie Policy"],
-};
+  Protocol: [
+    { label: "Markets", href: "/pages/markets" },
+    { label: "Borrow", href: "/pages/borrow" },
+    { label: "Earn", href: "/pages/earn" },
+    { label: "Liquidations", href: "/pages/liquidations" },
+    { label: "Governance", href: "/pages/governance" },
+  ],
+  Developers: [
+    { label: "Documentation", href: "/pages/documentation" },
+    { label: "GitHub", href: "https://github.com/anshul-chauhan2004/VaultLend" },
+    { label: "Bug Bounty", href: "/pages/bug-bounty" },
+    { label: "Audits", href: "/pages/audits" },
+    { label: "Brand Kit", href: "/pages/brand-kit" },
+  ],
+  Community: [
+    { label: "Discord", href: "/pages/discord" },
+    { label: "Twitter / X", href: "/pages/twitter" },
+    { label: "Telegram", href: "/pages/telegram" },
+    { label: "Blog", href: "/pages/blog" },
+    { label: "Newsletter", href: "/pages/newsletter" },
+  ],
+  Legal: [
+    { label: "Terms of Service", href: "/pages/terms" },
+    { label: "Privacy Policy", href: "/pages/privacy" },
+    { label: "Risk Disclosure", href: "/pages/risk" },
+    { label: "Cookie Policy", href: "/pages/cookies" },
+  ],
+} as const;
 
 export function Footer() {
   return (
@@ -43,20 +68,18 @@ export function Footer() {
             </div>
 
             <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 14, lineHeight: 1.75, maxWidth: 260, marginBottom: 28 }}>
-              Sepolia lending demo for testing collateral, borrowing, and repayment flows with
-              faucet-minted mock assets through MetaMask.
+              Sepolia lending demo for testing collateral, borrowing, and repayment flows with faucet-minted mock assets through MetaMask.
             </p>
 
             {/* Social Icons */}
             <div style={{ display: "flex", gap: 12 }}>
               {[
-                { label: "Twitter", path: "M4 4L12 12M12 4L4 12" },
-                { label: "Discord", path: "M8 7C8 7 6 8 6 10C6 12 8 13 8 13M12 7C12 7 14 8 14 10C14 12 12 13 12 13M7 15C7 15 9 16 10 16C11 16 13 15 13 15" },
-                { label: "GitHub", path: "M8 3C5.24 3 3 5.24 3 8C3 10.19 4.43 12.05 6.43 12.7C6.68 12.74 6.77 12.59 6.77 12.46V11.44C5.34 11.74 5.04 10.74 5.04 10.74C4.81 10.17 4.48 10.02 4.48 10.02C4.02 9.71 4.51 9.72 4.51 9.72C5.02 9.76 5.28 10.24 5.28 10.24C5.73 11.01 6.49 10.79 6.78 10.67C6.82 10.34 6.95 10.12 7.1 10C5.9 9.88 4.63 9.41 4.63 7.37C4.63 6.78 4.83 6.3 5.18 5.93C5.13 5.81 4.95 5.26 5.23 4.53C5.23 4.53 5.66 4.4 6.77 5.1C7.23 4.97 7.72 4.9 8.2 4.9C8.68 4.9 9.17 4.97 9.63 5.1C10.74 4.4 11.17 4.53 11.17 4.53C11.45 5.26 11.27 5.81 11.22 5.93C11.57 6.3 11.77 6.78 11.77 7.37C11.77 9.42 10.5 9.88 9.29 10C9.48 10.16 9.65 10.49 9.65 11V12.46C9.65 12.59 9.74 12.74 9.99 12.7C11.97 12.05 13 10.19 13 8C13 5.24 11.09 3 8 3Z" },
+                { label: "Twitter", href: "/pages/twitter", path: "M4 4L12 12M12 4L4 12" },
+                { label: "Discord", href: "/pages/discord", path: "M8 7C8 7 6 8 6 10C6 12 8 13 8 13M12 7C12 7 14 8 14 10C14 12 12 13 12 13M7 15C7 15 9 16 10 16C11 16 13 15 13 15" },
+                { label: "GitHub", href: "https://github.com/anshul-chauhan2004/VaultLend", path: "M8 3C5.24 3 3 5.24 3 8C3 10.19 4.43 12.05 6.43 12.7C6.68 12.74 6.77 12.59 6.77 12.46V11.44C5.34 11.74 5.04 10.74 5.04 10.74C4.81 10.17 4.48 10.02 4.48 10.02C4.02 9.71 4.51 9.72 4.51 9.72C5.02 9.76 5.28 10.24 5.28 10.24C5.73 11.01 6.49 10.79 6.78 10.67C6.82 10.34 6.95 10.12 7.1 10C5.9 9.88 4.63 9.41 4.63 7.37C4.63 6.78 4.83 6.3 5.18 5.93C5.13 5.81 4.95 5.26 5.23 4.53C5.23 4.53 5.66 4.4 6.77 5.1C7.23 4.97 7.72 4.9 8.2 4.9C8.68 4.9 9.17 4.97 9.63 5.1C10.74 4.4 11.17 4.53 11.17 4.53C11.45 5.26 11.27 5.81 11.22 5.93C11.57 6.3 11.77 6.78 11.77 7.37C11.77 9.42 10.5 9.88 9.29 10C9.48 10.16 9.65 10.49 9.65 11V12.46C9.65 12.59 9.74 12.74 9.99 12.7C11.97 12.05 13 10.19 13 8C13 5.24 11.09 3 8 3Z" },
               ].map((s) => (
-                <a
+                <div
                   key={s.label}
-                  href="#"
                   style={{
                     width: 36,
                     height: 36,
@@ -69,20 +92,52 @@ export function Footer() {
                     transition: "all 0.2s",
                   }}
                   onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLAnchorElement;
+                    const el = e.currentTarget as HTMLDivElement;
                     el.style.background = "rgba(0,232,150,0.12)";
                     el.style.borderColor = "rgba(0,232,150,0.3)";
                   }}
                   onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLAnchorElement;
+                    const el = e.currentTarget as HTMLDivElement;
                     el.style.background = "rgba(0,232,150,0.06)";
                     el.style.borderColor = "rgba(0,232,150,0.12)";
                   }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d={s.path} stroke="rgba(255,255,255,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </a>
+                  {s.href.startsWith("http") ? (
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={s.label}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d={s.path} stroke="rgba(255,255,255,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  ) : (
+                    <Link
+                      to={s.href}
+                      aria-label={s.label}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d={s.path} stroke="rgba(255,255,255,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </Link>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -103,25 +158,48 @@ export function Footer() {
               </h4>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
                 {links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      style={{
-                        color: "rgba(255,255,255,0.35)",
-                        fontSize: 14,
-                        textDecoration: "none",
-                        transition: "color 0.2s",
-                        display: "block",
-                      }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLAnchorElement).style.color = "#00e896";
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.35)";
-                      }}
-                    >
-                      {link}
-                    </a>
+                  <li key={link.label}>
+                    {link.href.startsWith("http") ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          color: "rgba(255,255,255,0.35)",
+                          fontSize: 14,
+                          textDecoration: "none",
+                          transition: "color 0.2s",
+                          display: "block",
+                        }}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLAnchorElement).style.color = "#00e896";
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.35)";
+                        }}
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        style={{
+                          color: "rgba(255,255,255,0.35)",
+                          fontSize: 14,
+                          textDecoration: "none",
+                          transition: "color 0.2s",
+                          display: "block",
+                        }}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLAnchorElement).style.color = "#00e896";
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.35)";
+                        }}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

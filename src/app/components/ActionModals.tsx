@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { parseUnits } from "viem";
 import { useAccount } from "wagmi";
 import { CONTRACTS, NETWORK_NAME } from "@/config/contracts";
@@ -18,6 +19,11 @@ import {
   useTokenApproval,
   useTokenBalance,
 } from "@/hooks/useTokenApproval";
+import {
+  getDisplayThresholdUnits,
+  getEffectiveAvailableToBorrow,
+  USDC_REPAY_DUST,
+} from "../lib/protocolDisplay";
 
 type ModalAction =
   | "depositCollateral"
@@ -104,8 +110,8 @@ function isModalAction(value: string): value is ModalAction {
   return value in ACTION_CONFIG;
 }
 
-function formatDisplayAmount(amount: bigint, decimals: number, precision = 4) {
-  return `${formatTokenAmount(amount, decimals, precision)}`;
+function formatDisplayAmount(amount: bigint, decimals: number, precision = 4, minDisplay = 0) {
+  return `${formatTokenAmount(amount, decimals, precision, minDisplay)}`;
 }
 
 function toInputAmount(amount: bigint, decimals: number) {
@@ -203,6 +209,13 @@ export function ActionModals({
     activeModal === "depositCollateral" || activeModal === "withdrawCollateral"
       ? collateralAsset
       : marketAsset;
+  const marketDustThreshold = getDisplayThresholdUnits(marketAsset.decimals, USDC_REPAY_DUST);
+  const effectiveAvailableToBorrow = getEffectiveAvailableToBorrow(
+    accountData.availableToBorrow,
+    accountData.debt,
+    marketAsset.decimals,
+    USDC_REPAY_DUST,
+  );
 
   const parsedAmount = useMemo(() => {
     if (!config || amount.trim() === "") return 0n;
@@ -267,10 +280,12 @@ export function ActionModals({
       case "supply":
         return usdcBalance.balance;
       case "withdrawLiquidity":
-        return poolData.availableLiquidity;
+        return accountData.suppliedLiquidity < poolData.availableLiquidity
+          ? accountData.suppliedLiquidity
+          : poolData.availableLiquidity;
       case "borrow":
-        return accountData.availableToBorrow < poolData.availableLiquidity
-          ? accountData.availableToBorrow
+        return effectiveAvailableToBorrow < poolData.availableLiquidity
+          ? effectiveAvailableToBorrow
           : poolData.availableLiquidity;
       case "repay":
         return accountData.debt < usdcBalance.balance ? accountData.debt : usdcBalance.balance;
@@ -281,7 +296,7 @@ export function ActionModals({
       default:
         return 0n;
     }
-  }, [accountData, activeModal, poolData.availableLiquidity, usdcBalance.balance, wethBalance.balance]);
+  }, [accountData, activeModal, marketDustThreshold, poolData.availableLiquidity, usdcBalance.balance, wethBalance.balance]);
 
   const primaryInfo = useMemo(() => {
     switch (activeModal) {
@@ -294,15 +309,15 @@ export function ActionModals({
         };
       case "withdrawLiquidity":
         return {
-          label: "Available pool balance",
-          amount: poolData.availableLiquidity,
+          label: "Supplied balance",
+          amount: accountData.suppliedLiquidity,
           decimals: marketAsset.decimals,
           symbol: marketAsset.symbol,
         };
       case "borrow":
         return {
           label: "Borrow limit",
-          amount: accountData.availableToBorrow,
+          amount: effectiveAvailableToBorrow,
           decimals: marketAsset.decimals,
           symbol: marketAsset.symbol,
         };
@@ -339,6 +354,7 @@ export function ActionModals({
     marketAsset.decimals,
     marketAsset.symbol,
     maxAmount,
+    effectiveAvailableToBorrow,
     poolData.availableLiquidity,
     selectedAsset.decimals,
     selectedAsset.symbol,
@@ -414,7 +430,7 @@ export function ActionModals({
 
   const setMax = () => {
     if (activeModal === "repay") {
-      setAmount(toInputAmount(accountData.debt, marketAsset.decimals));
+      setAmount(toInputAmount(maxAmount, marketAsset.decimals));
       return;
     }
 
@@ -518,29 +534,37 @@ export function ActionModals({
       }
     : { statusLabel: null };
 
-  return (
+  return createPortal(
+    (
     <div
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         background: "rgba(2,8,5,0.72)",
         backdropFilter: "blur(10px)",
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
-        padding: 20,
-        zIndex: 50,
+        padding: "92px 20px 24px",
+        overflowY: "auto",
+        overscrollBehavior: "contain",
+        zIndex: 9999,
       }}
     >
       <div
         style={{
           width: "100%",
           maxWidth: 560,
+          maxHeight: "calc(100dvh - 116px)",
           borderRadius: 24,
           border: "1px solid rgba(0,232,150,0.14)",
           background: "linear-gradient(135deg, rgba(7,24,16,0.98) 0%, rgba(4,14,9,0.98) 100%)",
           boxShadow: "0 40px 80px rgba(0,0,0,0.45)",
           padding: 28,
+          overflowY: "auto",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
@@ -608,7 +632,12 @@ export function ActionModals({
               {primaryInfo.label}
             </p>
             <p style={{ color: "#fff", fontSize: 16, fontWeight: 700 }}>
-              {formatDisplayAmount(primaryInfo.amount, primaryInfo.decimals)} {primaryInfo.symbol}
+              {formatDisplayAmount(
+                primaryInfo.amount,
+                primaryInfo.decimals,
+                4,
+                primaryInfo.label === "Borrow limit" ? USDC_REPAY_DUST : 0,
+              )} {primaryInfo.symbol}
             </p>
           </div>
           <div
@@ -623,7 +652,12 @@ export function ActionModals({
               {secondaryInfo.label}
             </p>
             <p style={{ color: "#fff", fontSize: 16, fontWeight: 700 }}>
-              {formatDisplayAmount(secondaryInfo.amount, secondaryInfo.decimals)}{" "}
+              {formatDisplayAmount(
+                secondaryInfo.amount,
+                secondaryInfo.decimals,
+                4,
+                0,
+              )}{" "}
               {secondaryInfo.symbol}
             </p>
           </div>
@@ -639,7 +673,9 @@ export function ActionModals({
               Health Factor
             </p>
             <p style={{ color: "#fff", fontSize: 16, fontWeight: 700 }}>
-              {Number.isFinite(accountData.healthFactor)
+              {accountData.debt < marketDustThreshold
+                ? "Infinite"
+                : Number.isFinite(accountData.healthFactor)
                 ? accountData.healthFactor.toFixed(2)
                 : "Infinite"}
             </p>
@@ -824,5 +860,7 @@ export function ActionModals({
         </div>
       </div>
     </div>
+    ),
+    document.body,
   );
 }

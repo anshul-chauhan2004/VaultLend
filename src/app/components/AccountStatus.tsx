@@ -1,6 +1,11 @@
 import React from "react";
 import { formatTokenAmount, TokenMetadata } from "@/config/tokens";
 import { AccountData, isLiquidatable } from "@/hooks/useProtocol";
+import {
+  getDisplayThresholdUnits,
+  getEffectiveAvailableToBorrow,
+  USDC_REPAY_DUST,
+} from "../lib/protocolDisplay";
 
 interface AccountStatusProps {
   account: AccountData;
@@ -17,19 +22,31 @@ export function AccountStatus({
   collateralAsset,
   marketAsset,
 }: AccountStatusProps) {
+  const debtDustThreshold = getDisplayThresholdUnits(marketAsset.decimals, USDC_REPAY_DUST);
+  const hasMeaningfulDebt = account.debt > debtDustThreshold;
+  const effectiveAvailableToBorrow = getEffectiveAvailableToBorrow(
+    account.availableToBorrow,
+    account.debt,
+    marketAsset.decimals,
+    USDC_REPAY_DUST,
+  );
   const collateralFormatted = formatTokenAmount(
     account.collateral,
     collateralAsset.decimals
   );
-  const debtFormatted = formatTokenAmount(account.debt, marketAsset.decimals);
+  const debtFormatted = formatTokenAmount(account.debt, marketAsset.decimals, 4);
   const availableFormatted = formatTokenAmount(
-    account.availableToBorrow,
-    marketAsset.decimals
+    effectiveAvailableToBorrow,
+    marketAsset.decimals,
+    2,
+    USDC_REPAY_DUST,
   );
 
   const isLiquidatable_ = isLiquidatable(account.healthFactor);
-  const hasDebt = account.debt > 0n;
-  const healthFactorDisplay = Number.isFinite(account.healthFactor)
+  const hasDebt = hasMeaningfulDebt;
+  const healthFactorDisplay = !hasMeaningfulDebt
+    ? "No Debt"
+    : Number.isFinite(account.healthFactor)
     ? account.healthFactor.toFixed(2)
     : "No Debt";
   const healthFactorDescription = !hasDebt

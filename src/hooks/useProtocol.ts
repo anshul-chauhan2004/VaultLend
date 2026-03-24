@@ -9,6 +9,7 @@ export interface AccountData {
   collateral: bigint;
   debt: bigint;
   availableToBorrow: bigint;
+  suppliedLiquidity: bigint;
   healthFactor: number;
 }
 
@@ -97,11 +98,28 @@ export function useAccountData() {
     },
   });
 
+  const liquidityBalanceQuery = useReadContract({
+    address: CONTRACTS.LENDING_POOL,
+    abi: LENDING_POOL_ABI,
+    functionName: "liquidityBalance",
+    args: address ? [address] : undefined,
+    query: {
+      enabled,
+      refetchInterval: 5_000,
+    },
+  });
+
   return {
-    data: parseAccountTuple(accountDataQuery.data),
-    isLoading: accountDataQuery.isLoading,
-    error: accountDataQuery.error,
-    refetch: accountDataQuery.refetch,
+    data: {
+      ...parseAccountTuple(accountDataQuery.data),
+      suppliedLiquidity: (liquidityBalanceQuery.data as bigint | undefined) ?? 0n,
+    },
+    isLoading: accountDataQuery.isLoading || liquidityBalanceQuery.isLoading,
+    error: accountDataQuery.error ?? liquidityBalanceQuery.error,
+    refetch: () => {
+      void accountDataQuery.refetch();
+      void liquidityBalanceQuery.refetch();
+    },
   };
 }
 

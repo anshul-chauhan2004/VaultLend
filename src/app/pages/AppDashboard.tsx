@@ -8,9 +8,12 @@ import { AccountStatus } from "../components/AccountStatus";
 import { ActionModals } from "../components/ActionModals";
 import { DemoTokenFaucet } from "../components/DemoTokenFaucet";
 import { PositionOutlook } from "../components/PositionOutlook";
+import { getEffectiveAvailableLiquidity } from "../lib/protocolDisplay";
 
-function formatUnitsDisplay(amount: bigint, decimals: number, fractionDigits = 2) {
-  return (Number(amount) / 10 ** decimals).toLocaleString(undefined, {
+function formatUnitsDisplay(amount: bigint, decimals: number, fractionDigits = 2, minDisplay = 0) {
+  const value = Number(amount) / 10 ** decimals;
+  const clamped = value < minDisplay ? 0 : value;
+  return clamped.toLocaleString(undefined, {
     maximumFractionDigits: fractionDigits,
   });
 }
@@ -35,7 +38,16 @@ export function AppDashboard() {
   const marketAsset = TOKENS[selectedMarketAsset];
 
   const marketCards = useMemo(
-    () => [
+    () => {
+      const effectiveAvailableLiquidity = getEffectiveAvailableLiquidity(
+        pool.totalDeposits,
+        pool.totalBorrows,
+        pool.availableLiquidity,
+        MARKET_TOKENS.borrow.decimals,
+        1,
+      );
+
+      return [
       {
         title: "Total Liquidity",
         value: `${formatUnitsDisplay(pool.totalDeposits, MARKET_TOKENS.borrow.decimals)} ${
@@ -45,14 +57,14 @@ export function AppDashboard() {
       },
       {
         title: "Available Liquidity",
-        value: `${formatUnitsDisplay(pool.availableLiquidity, MARKET_TOKENS.borrow.decimals)} ${
+        value: `${formatUnitsDisplay(effectiveAvailableLiquidity, MARKET_TOKENS.borrow.decimals)} ${
           MARKET_TOKENS.borrow.symbol
         }`,
         caption: "Immediately available to borrow",
       },
       {
         title: "Total Borrows",
-        value: `${formatUnitsDisplay(pool.totalBorrows, MARKET_TOKENS.borrow.decimals)} ${
+        value: `${formatUnitsDisplay(pool.totalBorrows, MARKET_TOKENS.borrow.decimals, 2, 1)} ${
           MARKET_TOKENS.borrow.symbol
         }`,
         caption: "Outstanding debt across the pool",
@@ -79,7 +91,8 @@ export function AppDashboard() {
         value: `${pool.borrowAPY.toFixed(2)}%`,
         caption: "Current variable borrow cost",
       },
-    ],
+    ];
+    },
     [pool],
   );
 
