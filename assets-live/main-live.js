@@ -45451,6 +45451,10 @@ function getEffectiveAvailableLiquidity(totalDeposits, totalBorrows, availableLi
   const threshold = getDisplayThresholdUnits(decimals, minDisplay);
   return totalBorrows < threshold ? totalDeposits : availableLiquidity;
 }
+function getEffectiveAvailableToBorrow(availableToBorrow, debt, decimals = 6, minDisplay = 0) {
+  const threshold = getDisplayThresholdUnits(decimals, minDisplay);
+  return debt < threshold ? availableToBorrow + debt : availableToBorrow;
+}
 function formatUsdValue(amount, decimals = 6, maximumFractionDigits = 2, minDisplay = 0) {
   const value = Number(formatUnits(amount, decimals));
   const clamped = value < minDisplay ? 0 : value;
@@ -47082,17 +47086,24 @@ function AccountStatus({
   collateralAsset,
   marketAsset
 }) {
-  const hasMeaningfulDebt = account.debt >= 1e6;
+  const debtDustThreshold = getDisplayThresholdUnits(marketAsset.decimals, 1e-2);
+  const hasMeaningfulDebt = account.debt > debtDustThreshold;
+  const effectiveAvailableToBorrow = getEffectiveAvailableToBorrow(
+    account.availableToBorrow,
+    account.debt,
+    marketAsset.decimals,
+    1e-2
+  );
   const collateralFormatted = formatTokenAmount(
     account.collateral,
     collateralAsset.decimals
   );
-  const debtFormatted = formatTokenAmount(account.debt, marketAsset.decimals, 2, 1);
+  const debtFormatted = formatTokenAmount(account.debt, marketAsset.decimals, 4);
   const availableFormatted = formatTokenAmount(
-    account.availableToBorrow,
+    effectiveAvailableToBorrow,
     marketAsset.decimals,
     2,
-    1
+    1e-2
   );
   const isLiquidatable_ = isLiquidatable(account.healthFactor);
   const hasDebt = hasMeaningfulDebt;
@@ -47802,7 +47813,13 @@ function ActionModals({
   const usdcBalance = useTokenBalance(MARKET_TOKENS.borrow.address);
   const config = isModalAction(activeModal) ? ACTION_CONFIG[activeModal] : null;
   const selectedAsset = activeModal === "depositCollateral" || activeModal === "withdrawCollateral" ? collateralAsset : marketAsset;
-  const marketDustThreshold = getDisplayThresholdUnits(marketAsset.decimals, 1);
+  const marketDustThreshold = getDisplayThresholdUnits(marketAsset.decimals, 1e-2);
+  const effectiveAvailableToBorrow = getEffectiveAvailableToBorrow(
+    accountData.availableToBorrow,
+    accountData.debt,
+    marketAsset.decimals,
+    1e-2
+  );
   const parsedAmount = (0, import_react91.useMemo)(() => {
     if (!config || amount.trim() === "") return 0n;
     try {
@@ -47853,7 +47870,7 @@ function ActionModals({
       case "withdrawLiquidity":
         return poolData.availableLiquidity;
       case "borrow":
-        return accountData.availableToBorrow < poolData.availableLiquidity ? accountData.availableToBorrow : poolData.availableLiquidity;
+        return effectiveAvailableToBorrow < poolData.availableLiquidity ? effectiveAvailableToBorrow : poolData.availableLiquidity;
       case "repay":
         if (accountData.debt < marketDustThreshold) return 0n;
         return accountData.debt < usdcBalance.balance ? accountData.debt : usdcBalance.balance;
@@ -47884,7 +47901,7 @@ function ActionModals({
       case "borrow":
         return {
           label: "Borrow limit",
-          amount: accountData.availableToBorrow,
+          amount: effectiveAvailableToBorrow,
           decimals: marketAsset.decimals,
           symbol: marketAsset.symbol
         };
@@ -47921,6 +47938,7 @@ function ActionModals({
     marketAsset.decimals,
     marketAsset.symbol,
     maxAmount,
+    effectiveAvailableToBorrow,
     poolData.availableLiquidity,
     selectedAsset.decimals,
     selectedAsset.symbol
@@ -48175,7 +48193,7 @@ function ActionModals({
                             primaryInfo.amount,
                             primaryInfo.decimals,
                             4,
-                            primaryInfo.label === "Outstanding debt" || primaryInfo.label === "Borrow limit" ? 1 : 0
+                            primaryInfo.label === "Borrow limit" ? 1e-2 : 0
                           ),
                           " ",
                           primaryInfo.symbol
@@ -48199,7 +48217,7 @@ function ActionModals({
                             secondaryInfo.amount,
                             secondaryInfo.decimals,
                             4,
-                            secondaryInfo.label === "Repayable now" ? 1 : 0
+                            0
                           ),
                           " ",
                           secondaryInfo.symbol
