@@ -1,36 +1,41 @@
-
 # VaultLend
 
-VaultLend is a single-market lending protocol demo on Ethereum Sepolia.
+VaultLend is a single‑market DeFi lending demo built for Ethereum Sepolia. It showcases a complete onchain borrowing flow using MetaMask with faucet‑minted mock assets (WETH collateral, USDC borrow/supply). The UI reads live protocol state from deployed contracts and surfaces pool metrics, account health, and transaction status.
 
-The app uses:
-- mock `WETH` as collateral
-- mock `USDC` as the supply and borrow asset
-- MetaMask for wallet connection and transaction signing
+## What You Can Do
 
-This project is intended for demo and testnet use. The faucet mints mock assets, so the flows are real onchain interactions on Sepolia, but they do not use real-value production assets.
+- Mint demo WETH and USDC via the in‑app faucet
+- Deposit WETH as collateral
+- Supply USDC as liquidity
+- Borrow USDC against your collateral
+- Repay USDC and withdraw collateral
+- View live market and account metrics (liquidity, utilization, debt, health factor)
 
-## Stack
+This is a testnet/demo app. The assets are mock tokens and do not represent real value.
+
+## Tech Stack
 
 - React + Vite
 - Wagmi + RainbowKit
+- viem (contract reads/writes)
 - Solidity + Hardhat
-- Ethers.js deployment script for Sepolia
 
 ## Contracts
 
-- [VaultLend.sol](./contracts/VaultLend.sol)
-- [MockWETH.sol](./contracts/MockWETH.sol)
-- [MockUSDC.sol](./contracts/MockUSDC.sol)
-- [MockOracle.sol](./contracts/MockOracle.sol)
+- `contracts/VaultLend.sol`
+- `contracts/MockWETH.sol`
+- `contracts/MockUSDC.sol`
+- `contracts/MockOracle.sol`
 
-## Frontend
+## App Structure
 
-- Landing page: [src/app/pages/Home.tsx](./src/app/pages/Home.tsx)
-- App dashboard: [src/app/pages/AppDashboard.tsx](./src/app/pages/AppDashboard.tsx)
-- Deployment config: [src/config/deployment.ts](./src/config/deployment.ts)
+- Landing page: `src/app/pages/Home.tsx`
+- App dashboard: `src/app/pages/AppDashboard.tsx`
+- Protocol hooks: `src/hooks/useProtocol.ts`
+- Contract addresses/ABIs: `src/config/contract-abis.ts`
+- Deployment records: `src/config/deployments/sepolia.json`
 
-## Setup
+## Quick Start
 
 Install dependencies:
 
@@ -44,6 +49,34 @@ Run the app:
 npm run dev
 ```
 
+Open:
+
+```
+http://localhost:5173
+```
+
+## Live Demo
+
+```
+https://anshul-chauhan2004.github.io/VaultLend/
+```
+
+## Sepolia Deployment
+
+Set env variables:
+
+```bash
+SEPOLIA_RPC_URL=...
+PRIVATE_KEY=...
+ETHERSCAN_API_KEY=...
+```
+
+Deploy contracts:
+
+```bash
+npm run deploy:sepolia
+```
+
 ## Useful Commands
 
 Generate ABIs:
@@ -52,19 +85,10 @@ Generate ABIs:
 npm run abi:generate
 ```
 
-Run the local Hardhat deploy script:
+Local deploy:
 
 ```bash
 npm run deploy:local
-```
-
-Deploy to Sepolia:
-
-```bash
-SEPOLIA_RPC_URL=...
-PRIVATE_KEY=...
-ETHERSCAN_API_KEY=...
-npm run deploy:sepolia
 ```
 
 Run tests:
@@ -73,13 +97,22 @@ Run tests:
 npx hardhat test
 ```
 
-## Sepolia Deployment
+## Architecture
 
-The current Sepolia deployment record is stored in:
+```text
+User Wallet (MetaMask)
+        |
+        v
+Frontend (React + Wagmi + viem)
+        |
+        v
+VaultLend (lending pool)
+  |         |         |
+  v         v         v
+MockWETH  MockUSDC  MockOracle
+```
+## Notes
 
-- [src/config/deployments/sepolia.json](./src/config/deployments/sepolia.json)
-
-The frontend consumes:
-
-- [src/config/deployment.ts](./src/config/deployment.ts)
-  
+- Single‑market demo: WETH collateral, USDC borrow/supply
+- Faucet mints mock tokens for testing
+- UI reads live onchain state from Sepolia deployments
