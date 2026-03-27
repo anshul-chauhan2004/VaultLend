@@ -2,6 +2,13 @@
 
 VaultLend is a single‑market DeFi lending demo built for Ethereum Sepolia. It showcases a complete onchain borrowing flow using MetaMask with faucet‑minted mock assets (WETH collateral, USDC borrow/supply). The UI reads live protocol state from deployed contracts and surfaces pool metrics, account health, and transaction status.
 
+
+## 🎥 Video Demonstration
+
+
+https://github.com/user-attachments/assets/244173ef-69f0-4cf5-beaa-e50047ddcb4c
+
+
 ## What You Can Do
 
 - Mint demo WETH and USDC via the in‑app faucet
